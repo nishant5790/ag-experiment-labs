@@ -9,7 +9,7 @@ app = FastAPI(title="My Custom App")
 # Mount the static UI directory
 import os
 ui_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui")
-app.mount("/ui", StaticFiles(directory=ui_dir, html=True), name="ui")
+# app.mount("/ui", StaticFiles(directory=ui_dir, html=True), name="ui")
 
 # Add your custom routes
 @app.get("/status")
