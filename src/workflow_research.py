@@ -23,46 +23,10 @@ from agno.run.workflow import WorkflowRunEvent , WorkflowRunOutputEvent
 from agno.workflow.step import Step
 from agno.workflow.workflow import Workflow
 from agno.workflow.types import StepInput , StepOutput
-
-
-#-------------------
-# Create agents
-#-------------------
-
-hackernews_agent= Agent(
-    name="hackernews_agent",
-    model=Gemini(
-        id="gemini-2.5-flash"
-    ),
-    tools= [HackerNewsTools()],
-    role = "Extract key insights and content from HackerNews post",
-)
-
-web_agent= Agent(
-    name="Web agent",
-    model=Gemini(
-        id="gemini-2.5-flash"
-    ),
-    tools= [WebSearchTools()],
-    role = "Search the web for the latest news and trends",
-)
-
-content_planner= Agent(
-    name="Content planner",
-    model=Gemini(id="gemini-2.5-flash"),
-    instructions=[
-        "Plan a queries for the  topic and research content",
-        "Ensure that I have detailed sources with relevant links",
-        "only return the topic names in dict format [{category_name : [queries]}]"
-    ]
-)
-
-
-writer_agent= Agent(
-    name="Writer agent",
-    model=Gemini(id="gemini-2.5-flash"),
-    instructions="Write a detailed report with sources on the topic using planning ",
-)
+from agents.hackernews_agent import hackernews_agent
+from agents.web_agent import web_agent
+from agents.content_planner import content_planner
+from agents.writer import writer_agent
 
 
 #---------------------

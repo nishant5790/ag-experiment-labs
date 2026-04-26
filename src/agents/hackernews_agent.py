@@ -1,4 +1,3 @@
-# package for agents
 from agno.agent import Agent
 from agno.vectordb.qdrant import Qdrant
 from agno.db.sqlite import SqliteDb
@@ -16,13 +15,4 @@ hackernews_agent= Agent(
     ),
     tools= [HackerNewsTools()],
     role = "Extract key insights and content from HackerNews post",
-)
-
-web_agent= Agent(
-    name="Web agent",
-    model=Gemini(
-        id="gemini-2.5-flash"
-    ),
-    tools= [WebSearchTools()],
-    role = "Search the web for the latest news and trends",
 )
