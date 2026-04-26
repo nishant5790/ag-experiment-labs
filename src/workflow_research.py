@@ -10,12 +10,9 @@ from textwrap import dedent
 from typing import AsyncIterable, AsyncIterator
 
 # package for agents
-from agno.agent import Agent
-from agno.vectordb.qdrant import Qdrant
 from agno.db.sqlite import SqliteDb
 from agno.models.google import Gemini
-from agno.tools.hackernews import HackerNewsTools
-from agno.tools.websearch import WebSearchTools
+
 
 # For Worflow
 from agno.team import Team
