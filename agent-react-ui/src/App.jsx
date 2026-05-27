@@ -57,7 +57,8 @@ function App() {
 
         setTargets(newTargets);
         if (newTargets.length > 0) {
-          setSelectedTarget(newTargets[0]._value);
+          const defaultWorkflow = newTargets.find(t => t._type === 'workflow');
+          setSelectedTarget(defaultWorkflow ? defaultWorkflow._value : newTargets[0]._value);
         }
       } catch (err) {
         console.error("Error setting up endpoints:", err);
@@ -118,6 +119,8 @@ function App() {
       const decoder = new TextDecoder('utf-8');
       let accumulatedData = '';
       let markdownBuffer = '';
+      let currentStepContent = '';
+      let isWorkflow = selectedTarget.startsWith('workflow|');
 
       while (true) {
         const { done, value } = await reader.read();
@@ -147,32 +150,81 @@ function App() {
           }
 
           if (['RunContent', 'RunResponse', 'message', 'ModelResponse'].includes(eventType)) {
+            if (data && data.content) {
+              if (isWorkflow) {
+                // Buffer the content for the current step, do not display yet
+                currentStepContent += data.content;
+              } else {
+                // Live stream for non-workflows
+                if (!agentMsgAdded) {
+                   setMessages(prev => [...prev, { id: agentMsgId, type: 'agent', text: '' }]);
+                   agentMsgAdded = true;
+                   setIsTyping(false);
+                }
+                setIntermediateEvents([]);
+                markdownBuffer += data.content;
+                setMessages(prev => prev.map(m => 
+                  m.id === agentMsgId ? { ...m, text: markdownBuffer } : m
+                ));
+              }
+            }
+            if (data && data.session_id) {
+              setSessionId(data.session_id);
+            }
+          } else if (eventType === 'WorkflowCompleted') {
+            // Workflow finished, now stream the final step's content
             if (!agentMsgAdded) {
                setMessages(prev => [...prev, { id: agentMsgId, type: 'agent', text: '' }]);
                agentMsgAdded = true;
                setIsTyping(false);
             }
             setIntermediateEvents([]);
-            if (data && data.content) {
-              markdownBuffer += data.content;
-              setMessages(prev => prev.map(m => 
-                m.id === agentMsgId ? { ...m, text: markdownBuffer } : m
-              ));
-            }
             if (data && data.session_id) {
               setSessionId(data.session_id);
             }
-          } else if (['RunCompleted', 'RunFinished', 'WorkflowRunCompleted', 'TeamRunCompleted'].includes(eventType)) {
-            setIntermediateEvents([]);
+            
+            // Simulate smooth streaming of the final output
+            let i = 0;
+            const fullText = currentStepContent;
+            const streamInterval = setInterval(() => {
+              const chunkSize = Math.max(3, Math.floor(fullText.length / 60));
+              markdownBuffer += fullText.substring(i, i + chunkSize);
+              setMessages(prev => prev.map(m => 
+                m.id === agentMsgId ? { ...m, text: markdownBuffer } : m
+              ));
+              i += chunkSize;
+              if (i >= fullText.length) {
+                clearInterval(streamInterval);
+                setMessages(prev => prev.map(m => 
+                  m.id === agentMsgId ? { ...m, text: fullText } : m
+                ));
+              }
+            }, 15);
+
+          } else if (['RunCompleted', 'RunFinished', 'TeamRunCompleted'].includes(eventType)) {
+            if (!isWorkflow) setIntermediateEvents([]);
             if (data && data.session_id) {
               setSessionId(data.session_id);
             }
           } else if (eventType && eventType !== 'RunContentCompleted') {
-            const meta = data?.tool?.tool_name || data?.step_name || data?.agent_name || data?.team_name || '';
-            setIntermediateEvents(prev => {
-              const newEvents = [...prev, { id: Date.now() + Math.random(), event: eventType, meta }];
-              return newEvents.slice(-3); // Keep only last 3
-            });
+            let label = '';
+            let value = '';
+            
+            if (eventType === 'StepStarted') {
+              label = 'Running step';
+              value = data?.step_name;
+              currentStepContent = ''; // Reset buffer for new step
+            } else if (eventType === 'ToolCallStarted' || eventType === 'TeamToolCallStarted') {
+              label = 'Using tool';
+              value = data?.tool?.tool_name;
+            } else if (eventType === 'RunStarted' && !intermediateEvents.some(e => e.event === 'Running step')) {
+              label = 'Agent active';
+              value = data?.agent_name;
+            }
+
+            if (label && value) {
+              setIntermediateEvents([{ id: Date.now().toString(), event: label, meta: value }]);
+            }
           }
         }
       }
