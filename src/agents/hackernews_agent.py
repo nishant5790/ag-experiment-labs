@@ -13,6 +13,10 @@ hackernews_agent= Agent(
     model=Gemini(
         id="gemini-2.5-flash"
     ),
+    db=SqliteDb(
+        session_table="hackernews_session",
+        db_file = "tmp/hackernews.db",
+    ),
     tools= [HackerNewsTools()],
     role = "Extract key insights and content from HackerNews post",
 )

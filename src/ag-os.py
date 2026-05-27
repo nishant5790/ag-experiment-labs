@@ -1,7 +1,15 @@
 
+import os
+import sys
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from agno.os import AgentOS
+
+SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
 from workflow_research import content_creation_workflow
 from agents.hackernews_agent import hackernews_agent
 from agents.web_agent import web_agent
@@ -10,11 +18,6 @@ from agents.writer import writer_agent
 
 # Create your custom FastAPI app
 app = FastAPI(title="AI research assistant")
-
-# Mount the static UI directory
-# import os
-# ui_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui")
-# # app.mount("/ui", StaticFiles(directory=ui_dir, html=True), name="ui")
 
 # Add your custom routes
 @app.get("/status")

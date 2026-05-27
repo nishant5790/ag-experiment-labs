@@ -1,7 +1,15 @@
 import asyncio
-from dotenv import load_dotenv
-load_dotenv()
 import os
+import sys
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
 api_key = os.getenv("QDRANT_API_KEY")
 qdrant_url = os.getenv("QDRANT_URL")
 collection_name = "test-wr-index"
