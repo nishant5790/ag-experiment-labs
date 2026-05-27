@@ -19,11 +19,40 @@ function App() {
 
   const fetchSessions = async () => {
     try {
-      const res = await fetch('/sessions');
-      if (res.ok) {
-        const data = await res.json();
-        setSessions(data.data || []);
+      if (targets.length === 0) return;
+      
+      const fetchPromises = targets.map(target => {
+        let url = `/sessions?type=${target.type}`;
+        if (target.db_id) {
+          url += `&db_id=${target.db_id}`;
+        }
+        return fetch(url);
+      });
+
+      const responses = await Promise.all(fetchPromises);
+      let allSessions = [];
+      
+      for (const res of responses) {
+        if (res.ok) {
+          const data = await res.json();
+          allSessions = allSessions.concat(data.data || []);
+        }
       }
+      
+      // Sort by created_at descending
+      allSessions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      
+      // Deduplicate by session_id in case multiple targets share a db
+      const uniqueSessions = [];
+      const seenIds = new Set();
+      for (const s of allSessions) {
+        if (!seenIds.has(s.session_id)) {
+          seenIds.add(s.session_id);
+          uniqueSessions.push(s);
+        }
+      }
+      
+      setSessions(uniqueSessions);
     } catch (e) {
       console.error('Error fetching sessions:', e);
     }
@@ -97,28 +126,26 @@ function App() {
           }
         };
 
-        const [agents, teams, workflows] = await Promise.all([
+        const [agentsRes, teamsRes, workflowsRes] = await Promise.all([
           fetchJson('/agents'),
           fetchJson('/teams'),
           fetchJson('/workflows')
         ]);
-
-        let newTargets = [];
-
-        if (agents && agents.length > 0) {
-          newTargets = [...newTargets, ...agents.map(a => ({ ...a, _type: 'agent', _value: `agent|${a.id}` }))];
-        }
-        if (teams && teams.length > 0) {
-          newTargets = [...newTargets, ...teams.map(t => ({ ...t, _type: 'team', _value: `team|${t.team_id || t.id}` }))];
-        }
-        if (workflows && workflows.length > 0) {
-          newTargets = [...newTargets, ...workflows.map(w => ({ ...w, _type: 'workflow', _value: `workflow|${w.id}` }))];
-        }
-
-        setTargets(newTargets);
-        if (newTargets.length > 0) {
-          const defaultWorkflow = newTargets.find(t => t._type === 'workflow');
-          setSelectedTarget(defaultWorkflow ? defaultWorkflow._value : newTargets[0]._value);
+        
+        const agents = Array.isArray(agentsRes) ? agentsRes : (agentsRes.data || []);
+        const teams = Array.isArray(teamsRes) ? teamsRes : (teamsRes.data || []);
+        const workflows = Array.isArray(workflowsRes) ? workflowsRes : (workflowsRes.data || []);
+        
+        const combinedTargets = [
+          ...agents.map(a => ({ id: a.agent_id || a.id, name: a.name || a.agent_id || a.id, type: 'agent', db_id: a.db_id, _value: `agent|${a.id}` })),
+          ...teams.map(t => ({ id: t.team_id || t.id, name: t.name || t.team_id || t.id, type: 'team', db_id: t.db_id, _value: `team|${t.team_id || t.id}` })),
+          ...workflows.map(w => ({ id: w.workflow_id || w.id, name: w.name || w.workflow_id || w.id, type: 'workflow', db_id: w.db_id, _value: `workflow|${w.id}` }))
+        ];
+        setTargets(combinedTargets);
+        
+        if (combinedTargets.length > 0) {
+          const defaultWorkflow = combinedTargets.find(t => t.type === 'workflow');
+          setSelectedTarget(defaultWorkflow ? defaultWorkflow._value : combinedTargets[0]._value);
         }
       } catch (err) {
         console.error("Error setting up endpoints:", err);
@@ -295,7 +322,7 @@ function App() {
             }
 
             if (label && value) {
-              setIntermediateEvents([{ id: Date.now().toString(), event: label, meta: value }]);
+              setIntermediateEvents(prev => [...prev, { id: Date.now().toString(), event: label, meta: value }]);
             }
           }
         }
@@ -311,8 +338,8 @@ function App() {
 
   const renderOptions = () => {
     const grouped = targets.reduce((acc, target) => {
-      acc[target._type] = acc[target._type] || [];
-      acc[target._type].push(target);
+      acc[target.type] = acc[target.type] || [];
+      acc[target.type].push(target);
       return acc;
     }, {});
 
@@ -404,22 +431,13 @@ function App() {
           );
         })}
         {isTyping && (
-          <div className="message agent-message" style={{flexDirection: 'column', alignItems: 'flex-start', background: 'transparent', border: 'none', boxShadow: 'none'}}>
-            <div className="typing-indicator" style={{marginBottom: intermediateEvents.length > 0 ? '8px' : '0'}}>
-              <div className="typing-dot"></div>
-              <div className="typing-dot"></div>
-              <div className="typing-dot"></div>
+          <div className="message agent typing">
+            <div className="thinking-badge" style={{ display: 'flex', alignItems: 'center', color: 'var(--text-color)', background: 'var(--bg-panel)', padding: '12px 16px', borderRadius: '12px', width: 'fit-content', fontSize: '0.9rem' }}>
+              <span className="dot-pulse"></span>
+              {intermediateEvents.length > 0 
+                ? `${intermediateEvents[intermediateEvents.length - 1].event}: ${intermediateEvents[intermediateEvents.length - 1].meta}`
+                : 'Starting...'}
             </div>
-            {intermediateEvents.length > 0 && (
-              <div className="intermediate-events-container">
-                {intermediateEvents.map(ev => (
-                  <div key={ev.id} className="intermediate-event">
-                    <span className="event-name">{ev.event}</span>
-                    {ev.meta && <span className="event-meta">{ev.meta}</span>}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
       </main>
