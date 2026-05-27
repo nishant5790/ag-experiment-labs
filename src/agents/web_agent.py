@@ -16,4 +16,8 @@ web_agent= Agent(
     ),
     tools= [WebSearchTools()],
     role = "Search the web for the latest news and trends",
+    db=SqliteDb(
+        session_table="web_session",
+        db_file = "tmp/web.db",
+    ),
 )

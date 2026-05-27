@@ -13,13 +13,73 @@ function App() {
   
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState('');
+  const [sessions, setSessions] = useState([]);
   const [intermediateEvents, setIntermediateEvents] = useState([]);
   const chatContainerRef = useRef(null);
+
+  const fetchSessions = async () => {
+    try {
+      const res = await fetch('/sessions');
+      if (res.ok) {
+        const data = await res.json();
+        setSessions(data.data || []);
+      }
+    } catch (e) {
+      console.error('Error fetching sessions:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const handleLoadSession = async (sid) => {
+    if (isTyping) return;
+    try {
+      const res = await fetch(`/sessions/${sid}/runs`);
+      if (res.ok) {
+        const runs = await res.json();
+        setSessionId(sid);
+        
+        // Auto-select the target used in this session
+        const session = sessions.find(s => s.session_id === sid);
+        if (session) {
+           if (session.workflow_id) setSelectedTarget(`workflow|${session.workflow_id}`);
+           else if (session.team_id) setSelectedTarget(`team|${session.team_id}`);
+           else if (session.agent_id) setSelectedTarget(`agent|${session.agent_id}`);
+        }
+        
+        const loadedMessages = [];
+        runs.forEach(run => {
+          if (run.run_input) {
+            loadedMessages.push({ id: `user-${run.run_id}`, type: 'user', text: run.run_input });
+          }
+          if (run.content) {
+            loadedMessages.push({
+              id: `agent-${run.run_id}`,
+              type: 'agent',
+              text: run.content,
+              runId: run.run_id,
+              sessionId: sid
+            });
+          }
+        });
+        
+        if (loadedMessages.length === 0) {
+          loadedMessages.push({ id: 'welcome', type: 'system', text: 'Resumed empty session.' });
+        }
+        setMessages(loadedMessages);
+      }
+    } catch (e) {
+      console.error('Error loading session runs:', e);
+    }
+  };
 
   const handleClearChat = () => {
     setMessages([{ id: 'welcome', type: 'system', text: 'Welcome to Aion-ai. Select a target and send a message to start.' }]);
     setIntermediateEvents([]);
     setSessionId('');
+    fetchSessions();
   };
 
   // Fetch agents, teams, workflows on mount
@@ -157,7 +217,13 @@ function App() {
               } else {
                 // Live stream for non-workflows
                 if (!agentMsgAdded) {
-                   setMessages(prev => [...prev, { id: agentMsgId, type: 'agent', text: '' }]);
+                   setMessages(prev => [...prev, { 
+                     id: agentMsgId, 
+                     type: 'agent', 
+                     text: '',
+                     runId: data?.workflow_run_id || data?.run_id || '',
+                     sessionId: data?.session_id || '' 
+                   }]);
                    agentMsgAdded = true;
                    setIsTyping(false);
                 }
@@ -174,7 +240,13 @@ function App() {
           } else if (eventType === 'WorkflowCompleted') {
             // Workflow finished, now stream the final step's content
             if (!agentMsgAdded) {
-               setMessages(prev => [...prev, { id: agentMsgId, type: 'agent', text: '' }]);
+               setMessages(prev => [...prev, { 
+                 id: agentMsgId, 
+                 type: 'agent', 
+                 text: '',
+                 runId: data?.workflow_run_id || data?.run_id || '',
+                 sessionId: data?.session_id || '' 
+               }]);
                agentMsgAdded = true;
                setIsTyping(false);
             }
@@ -256,16 +328,49 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>Aion-ai</h1>
-        <div className="header-actions" style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
-          <button className="clear-btn" onClick={handleClearChat} title="Clear Chat">
+    <div className="app-layout">
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <button className="new-chat-btn" onClick={handleClearChat}>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
+            New Chat
           </button>
-          <div className="agent-selector">
+        </div>
+        <div className="session-list">
+          {sessions.filter(s => {
+             if (!selectedTarget) return true;
+             const [type, id] = selectedTarget.split('|');
+             if (type === 'workflow') return s.workflow_id === id;
+             if (type === 'team') return s.team_id === id;
+             if (type === 'agent') return s.agent_id === id;
+             return true;
+          }).map(s => (
+            <div 
+              key={s.session_id} 
+              className={`session-item ${s.session_id === sessionId ? 'active' : ''}`}
+              onClick={() => handleLoadSession(s.session_id)}
+            >
+              <div className="session-name" title={s.session_name || s.session_id}>
+                {s.session_name || 'New Chat'}
+              </div>
+              <div className="session-date">
+                {new Date(s.created_at).toLocaleString(undefined, {
+                  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      <div className="app-container">
+        <header className="app-header">
+          <h1>Aion-ai</h1>
+          <div className="header-actions" style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
+            <div className="agent-selector">
             <select value={selectedTarget} onChange={(e) => setSelectedTarget(e.target.value)}>
               {targets.length > 0 ? renderOptions() : <option value="">Loading...</option>}
             </select>
@@ -339,6 +444,7 @@ function App() {
           </div>
         </form>
       </footer>
+      </div>
     </div>
   );
 }

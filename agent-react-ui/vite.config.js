@@ -17,6 +17,10 @@ export default defineConfig({
       '/workflows': {
         target: 'http://localhost:8000',
         changeOrigin: true
+      },
+      '/sessions': {
+        target: 'http://localhost:8000',
+        changeOrigin: true
       }
     }
   }

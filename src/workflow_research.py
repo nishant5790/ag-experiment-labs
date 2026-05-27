@@ -45,7 +45,7 @@ research_team = Team(
     members=[hackernews_agent, web_agent],
     instructions="Research the topics from hackernews and the web using the queries and return the content with source and links",
     stream_member_events=True,
-    show_members_responses=True
+    # show_members_responses=False
 )
 
 #--------------------

@@ -10,6 +10,6 @@ import os
 writer_agent= Agent(
     name="Writer agent",
     model=Gemini(id="gemini-2.5-flash"),
-    instructions="Write a detailed report with sources on the topic using planning ",
+    instructions="Write a detailed report with sources on the topic ",
 )
 
