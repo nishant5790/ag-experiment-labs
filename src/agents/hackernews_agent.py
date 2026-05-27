@@ -19,4 +19,5 @@ hackernews_agent= Agent(
     ),
     tools= [HackerNewsTools()],
     role = "Extract key insights and content from HackerNews post",
+    add_history_to_context=True,
 )

@@ -110,6 +110,7 @@ content_creation_workflow = Workflow(
         session_table="workflow_session",
         db_file = "tmp/workflow.db",
     ),
+    add_workflow_history_to_steps=True,
     steps=[ content_planning_step,prepare_input_for_web_search,research_step,prepare_input_for_writer,writer_agent],
 )
 

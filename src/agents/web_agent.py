@@ -20,4 +20,5 @@ web_agent= Agent(
         session_table="web_session",
         db_file = "tmp/web.db",
     ),
+    add_history_to_context=True,
 )
