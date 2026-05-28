@@ -26,6 +26,6 @@ arxiv_agent = Agent(
 if __name__ == "__main__":
     # Example usage
     topic = "Artificial Intelligence in Healthcare"
-    response = arxiv_agent.print_response(topic,
-                                          markdown=True,)
+    response = arxiv_agent.print_response(topic,markdown=True,)
+
     print(response)
