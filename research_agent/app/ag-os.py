@@ -4,10 +4,21 @@ Main application script for the OS app.
 import os
 import sys
 
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from agno.os import AgentOS
-from agents.research_agent import research_agent
+from research_agent.agents.search_agent import search_agent_ag
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from dotenv import load_dotenv
+load_dotenv(os.path.join(project_root, ".env"))
 
 # Create your custom FastAPI app
 app = FastAPI(title="AI research assistant")
@@ -19,7 +30,7 @@ async def status_check():
 
 # Pass your app to AgentOS
 agent_os = AgentOS(
-    agents=[research_agent],
+    agents=[search_agent_ag],
 
     base_app=app  # Your custom FastAPI app
 )
