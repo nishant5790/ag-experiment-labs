@@ -1,0 +1,12 @@
+name: Analysis Team
+description: >-
+  The Analysis Team performs deep analytical processing on the corpus of
+  papers surfaced by the Discovery Team. It parses individual papers,
+  builds a comparison matrix, surfaces contradictions between works, and
+  produces a SWOT view of the field.
+instructions:
+  - Begin by delegating to Paper Parser Agent to extract structured fields (problem, method, dataset, results, limitations) from the input papers.
+  - Hand the structured records to Comparison Matrix Agent to build a side-by-side comparison of methods across consistent dimensions.
+  - Invoke Contradiction Agent to surface places where papers disagree, with severity rating and citations.
+  - Invoke SWOT Agent to summarize the field as Strengths, Weaknesses, Opportunities, Threats with a closing strategic recommendation.
+  - Combine all member outputs into a single analytical report with clearly labeled sections and citations.

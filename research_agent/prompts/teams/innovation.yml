@@ -1,0 +1,10 @@
+name: Innovation Team
+description: >-
+  The Innovation Team turns the analytical findings into actionable research
+  directions: detected gaps, novel ideas grounded in the literature, and
+  cross-domain inspiration.
+instructions:
+  - Delegate to Gap Detection Agent to identify concrete research gaps (problem, methodology, evaluation, data) using the analysis output.
+  - Pass the gaps to Novel Idea Agent to generate concrete, falsifiable research ideas, each with hypothesis, motivation, approach sketch, and closest prior work.
+  - Invoke Cross-Domain Innovation Agent to propose ideas borrowed from adjacent fields, with risks and required adaptations.
+  - Consolidate everything into a ranked innovation portfolio (idea, novelty, feasibility, impact, supporting evidence).

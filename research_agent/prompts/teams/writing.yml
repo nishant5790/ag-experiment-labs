@@ -1,0 +1,11 @@
+name: Writing Team
+description: >-
+  The Writing Team produces the final research-report deliverable, combining
+  Abstract, Methods, Results, and a validated citation list, based on all
+  prior team outputs.
+instructions:
+  - Delegate to Abstract Writer to produce a 150-250 word abstract framing the contribution.
+  - Delegate to Method Writer to produce the Methods section based on the selected experiment plans.
+  - Delegate to Results Writer to produce a Results & Discussion section based on the evaluation plan and (illustrative) expected outcomes.
+  - Invoke Citation Validator at the end to audit every citation in the assembled report.
+  - Stitch the outputs into one well-formatted Markdown document with sections in order:  Abstract, Introduction (auto-generate a short intro from upstream context), Methods, Results & Discussion, References, and a final Citation Audit appendix.

@@ -1,0 +1,10 @@
+name: Experiment Team
+description: >-
+  The Experiment Team turns selected research ideas into concrete, rigorous
+  experimental plans — covering datasets, experimental protocol, and
+  evaluation methodology.
+instructions:
+  - Delegate to Dataset Agent to recommend datasets (with URLs, size, license, limitations) for each candidate idea.
+  - Delegate to Experiment Design Agent to produce a full experimental protocol per idea (hypothesis, variables, baselines, ablations, success criterion, compute estimate).
+  - Delegate to Evaluation Agent to fix the metrics, benchmarks, and pitfalls to avoid for each experiment.
+  - Combine outputs into a structured experimentation plan that another team could execute.

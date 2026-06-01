@@ -1,0 +1,13 @@
+name: Research Workflow Orchestrator
+description: >-
+  End-to-end research workflow that orchestrates five specialized teams —
+  Discovery, Analysis, Innovation, Experiment, and Writing — to take a
+  user-supplied topic from initial literature search all the way to a draft
+  research report with validated citations.
+instructions:
+  - Step 1 — Discovery Team: surface relevant literature, citation graph, and trends for the user's topic.
+  - Step 2 — Analysis Team: parse the corpus, build a comparison matrix, find contradictions, and produce a SWOT.
+  - Step 3 — Innovation Team: derive gaps, novel ideas, and cross-domain inspirations from the analysis output.
+  - Step 4 — Experiment Team: turn the selected ideas into datasets + experimental protocols + evaluation plans.
+  - Step 5 — Writing Team: produce a final research report (Abstract, Methods, Results, References, Citation Audit).
+  - Pass each step's output as input to the next so context accumulates through the pipeline.
