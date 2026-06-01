@@ -1,0 +1,7 @@
+# Per-team overrides. Keys match the prompt_name (file under prompts/teams/<name>.yml).
+
+discovery: {}
+analysis: {}
+innovation: {}
+experiment: {}
+writing: {}

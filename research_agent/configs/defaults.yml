@@ -1,0 +1,28 @@
+# Global defaults applied to every agent, team, and workflow.
+# Per-component overrides live in configs/agents.yml, configs/teams.yml,
+# configs/workflows.yml under the matching prompt_name key.
+
+model:
+  provider: google           # google | openai | anthropic
+  id: gemini-2.5-flash
+  temperature: null          # null -> use provider default
+
+db:
+  type: sqlite               # only sqlite supported for now
+  file: research_agent/storage/research_agent.db
+  # session_table is auto-derived: "<scope>_<prompt_name>_session"
+
+agent:
+  markdown: true
+  stream_events: true
+  use_json_mode: false
+  structured_outputs: false
+
+team:
+  markdown: true
+  stream_events: true
+  add_datetime_to_context: true
+  add_member_tools_to_context: false
+
+workflow:
+  stream_events: true

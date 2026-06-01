@@ -1,0 +1,40 @@
+# Per-agent overrides. Keys must match the prompt_name (file under prompts/agents/<name>.yml).
+# Any value here overrides the corresponding key in configs/defaults.yml.
+# Examples:
+#
+#   search:
+#     model:
+#       id: gemini-2.5-pro
+#     agent:
+#       use_json_mode: true
+#       markdown: false
+
+search:
+  agent:
+    use_json_mode: true
+    markdown: false
+
+citation_graph:
+  agent:
+    use_json_mode: true
+    markdown: false
+
+trend_analysis:
+  agent:
+    use_json_mode: true
+    markdown: false
+
+paper_parser: {}
+comparison_matrix: {}
+contradiction: {}
+swot: {}
+gap_detection: {}
+novel_idea: {}
+cross_domain: {}
+dataset: {}
+experiment_design: {}
+evaluation: {}
+abstract_writer: {}
+method_writer: {}
+results_writer: {}
+citation_validator: {}
