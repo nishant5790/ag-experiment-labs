@@ -12,6 +12,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from agno.os import AgentOS
 from research_agent.agents.search_agent import search_agent_ag
+from research_agent.teams.discovery_team import discovery_team
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 if project_root not in sys.path:
@@ -31,6 +32,7 @@ async def status_check():
 # Pass your app to AgentOS
 agent_os = AgentOS(
     agents=[search_agent_ag],
+    teams= [discovery_team],
 
     base_app=app  # Your custom FastAPI app
 )

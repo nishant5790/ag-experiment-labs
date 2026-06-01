@@ -42,7 +42,7 @@ discovery_team = Team(
         "The Discovery Team is responsible for the knowledge-discovery phase of the "
         "research workflow. It collaborates to surface the most relevant prior work, "
         "map the citation landscape, and characterize the temporal evolution of a "
-        "research topic."
+        "research topic. with all the refernce link and sources "
     ),
     instructions=[
         "Coordinate the three member agents to produce a comprehensive discovery report on the user's topic.",
@@ -50,7 +50,8 @@ discovery_team = Team(
         "Pass the discovered seed papers to Citation Graph Agent to identify seminal works, influential authors, and research clusters.",
         "Invoke Trend Analysis Agent to build a publication timeline, detect emerging/declining sub-topics, and surface hot keywords, venues, and institutions.",
         "Synthesize the outputs of all three members into a single cohesive discovery summary for the user.",
-        "Highlight key papers, top authors, dominant venues, current trends, and any notable gaps observed across the discovery results.",
+        "Highlight key papers, top authors, dominant venues, current trends, and any notable gaps observed across the discovery results",
+        "always include the refrences and links "
     ],
     add_datetime_to_context=True,
     add_member_tools_to_context=False,
@@ -61,7 +62,6 @@ discovery_team = Team(
 
 if __name__ == "__main__":
     query = (
-        "Run a full discovery pass on the topic: "
-        "'large language model agents for autonomous scientific research'."
+        "graph neural networks for drug discovery"
     )
     asyncio.run(discovery_team.aprint_response(query, stream=True))
