@@ -1,18 +1,6 @@
-"""
-Main application script for the OS app.
-"""
+"""Main application script for the AgentOS app."""
 import os
 import sys
-
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from agno.os import AgentOS
-from research_agent.agents.search_agent import search_agent_ag
-from research_agent.teams.discovery_team import discovery_team
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 if project_root not in sys.path:
@@ -21,30 +9,80 @@ if project_root not in sys.path:
 from dotenv import load_dotenv
 load_dotenv(os.path.join(project_root, ".env"))
 
-# Create your custom FastAPI app
+from fastapi import FastAPI
+from agno.os import AgentOS
+
+from research_agent.agents import (
+    search_agent_ag,
+    citation_graph_agent_ag,
+    trend_analysis_agent_ag,
+    parser_agent_ag,
+    matrix_agent_ag,
+    contradiction_agent_ag,
+    swot_agent_ag,
+    gap_agent_ag,
+    idea_agent_ag,
+    cross_domain_agent_ag,
+    dataset_agent_ag,
+    experiment_agent_ag,
+    evaluation_agent_ag,
+    abstract_writer_ag,
+    method_writer_ag,
+    results_writer_ag,
+    citation_validator_ag,
+)
+from research_agent.teams import (
+    discovery_team,
+    analysis_team,
+    innovation_team,
+    experiment_team,
+    writing_team,
+)
+from research_agent.workflows import research_workflow
+
+
 app = FastAPI(title="AI research assistant")
 
-# Add your custom routes
+
 @app.get("/status")
 async def status_check():
     return {"status": "healthy"}
 
-# Pass your app to AgentOS
-agent_os = AgentOS(
-    agents=[search_agent_ag],
-    teams= [discovery_team],
 
-    base_app=app  # Your custom FastAPI app
+agent_os = AgentOS(
+    agents=[
+        search_agent_ag,
+        citation_graph_agent_ag,
+        trend_analysis_agent_ag,
+        parser_agent_ag,
+        matrix_agent_ag,
+        contradiction_agent_ag,
+        swot_agent_ag,
+        gap_agent_ag,
+        idea_agent_ag,
+        cross_domain_agent_ag,
+        dataset_agent_ag,
+        experiment_agent_ag,
+        evaluation_agent_ag,
+        abstract_writer_ag,
+        method_writer_ag,
+        results_writer_ag,
+        citation_validator_ag,
+    ],
+    teams=[
+        discovery_team,
+        analysis_team,
+        innovation_team,
+        experiment_team,
+        writing_team,
+    ],
+    workflows=[research_workflow],
+    base_app=app,
 )
 
-# Get the combined app with both AgentOS and your routes
 app = agent_os.get_app()
 
+
 if __name__ == "__main__":
-    """Run the AgentOS application.
-
-    You can see the docs at:
-    http://localhost:7777/docs
-
-    """
+    """Run the AgentOS application. Docs at http://localhost:8000/docs"""
     agent_os.serve(app="ag-os:app", port=8000, reload=True)
