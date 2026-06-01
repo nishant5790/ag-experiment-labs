@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workflow Stream UI</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Content Creation Workflow Stream</h1>
+      <p class="subtitle">Call <code>/workflows/content-creation-workflow/runs</code> and watch live events.</p>
+
+      <form id="run-form" class="card">
+        <div class="grid">
+          <label>
+            API Base URL
+            <input id="base-url" type="url" value="http://localhost:8000" required />
+          </label>
+
+          <label>
+            Message
+            <input id="message" type="text" value="machine learning in 2026" required />
+          </label>
+
+          <label>
+            Session ID (optional)
+            <input id="session-id" type="text" placeholder="session id" />
+          </label>
+
+          <label>
+            User ID (optional)
+            <input id="user-id" type="text" placeholder="user id" />
+          </label>
+
+          <label>
+            Version (optional)
+            <input id="version" type="text" placeholder="version" />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="start-btn" type="submit">Start Streaming</button>
+          <button id="stop-btn" type="button" disabled>Stop</button>
+          <button id="clear-btn" type="button">Clear</button>
+          <button id="download-btn" type="button">Download Log</button>
+        </div>
+      </form>
+
+      <section class="card">
+        <h2>Live Event Log</h2>
+        <div id="status" class="status">Idle</div>
+        <pre id="log-output" class="log"></pre>
+      </section>
+
+      <section class="card">
+        <h2>Final Data</h2>
+        <pre id="final-output" class="log"></pre>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
